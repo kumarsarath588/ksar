@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 
@@ -29,7 +28,7 @@ func assertRowsAffected(result sql.Result, expectedNumRows int64) error {
 	if err != nil {
 		return err
 	} else if rowsAffected != expectedNumRows {
-		return fmt.Errorf("Unexpected number of DB Records affected: %d", (rowsAffected))
+		return fmt.Errorf("unexpected number of DB Records affected: %d", (rowsAffected))
 	}
 
 	return nil
@@ -57,7 +56,6 @@ func InsertCustomerEntry(db *sql.DB, customer *Customer) error {
 	log.Printf("Successfully inserted Customer '%s' with uuid: %s", customer.Name, customer.UUID)
 
 	return nil
-
 }
 
 func GetCustomerEntry(db *sql.DB, uuid string) (*Customer, error) {
@@ -73,8 +71,8 @@ func GetCustomerEntry(db *sql.DB, uuid string) (*Customer, error) {
 		if err != nil {
 			return nil, err
 		}
-		// No rows matched
-		return nil, errors.New("No rows matched")
+
+		return nil, fmt.Errorf("no customer entry found with uuid '%s'", uuid)
 
 	}
 
@@ -104,7 +102,7 @@ func GetAllCustomerEntries(db *sql.DB) ([]*Customer, error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New("No rows matched")
+		return nil, fmt.Errorf("no customer records found")
 
 	}
 
@@ -128,7 +126,6 @@ func GetAllCustomerEntries(db *sql.DB) ([]*Customer, error) {
 	}
 
 	return customers, nil
-
 }
 
 func DeleteCustomerEntry(db *sql.DB, uuid string) error {
@@ -147,5 +144,4 @@ func DeleteCustomerEntry(db *sql.DB, uuid string) error {
 	}
 
 	return nil
-
 }
