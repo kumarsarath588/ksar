@@ -7,10 +7,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"tabsquare/db"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -28,31 +30,50 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
+type App struct {
+	Router *mux.Router
+	DB     *sql.DB
+}
+
+func (a *App) Initialize(user, password, host, port, dbname string) {
+	connectionString :=
+		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbname)
+
+	var err error
+	a.DB, err = sql.Open("mysql", connectionString)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	a.Router = mux.NewRouter()
+
+	a.initializeRoutes()
+}
+
+func (a *App) Run(addr string) {
+	loggedRouter := handlers.LoggingHandler(os.Stdout, a.Router)
+	log.Fatal(http.ListenAndServe(addr, loggedRouter))
+}
+
+func (a *App) initializeRoutes() {
+
+	a.Router.HandleFunc("/api/v1/customers", a.ReturnAllCustomers).Methods("GET")
+	a.Router.HandleFunc("/api/v1/customers", a.CreateNewCustomer).Methods("POST")
+	a.Router.HandleFunc("/api/v1/customers/{uuid}", a.DeleteCustomer).Methods("DELETE")
+	a.Router.HandleFunc("/api/v1/customers/{uuid}", a.ReturnSingleCustomer).Methods("GET")
+	a.Router.HandleFunc("/health", a.HealthCheck).Methods("GET")
+
+}
+
 func writeJsonResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(&data)
 }
 
-func db_connect() (*sql.DB, error) {
-	db_client, err := sql.Open("mysql", "user:BcGH2Gj41J5VF1@tcp(10.46.142.201:3306)/tabsquare")
+func (a *App) HealthCheck(w http.ResponseWriter, r *http.Request) {
 
-	if err != nil {
-		log.Print(err.Error())
-	}
-	return db_client, nil
-}
-
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
-
-	db_client, err := db_connect()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
-	defer db_client.Close()
-
-	err = db_client.Ping()
+	err := a.DB.Ping()
 	if err != nil {
 		log.Printf("DB conneciton is not ok %s", err.Error())
 	} else {
@@ -68,18 +89,11 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ReturnAllCustomers(w http.ResponseWriter, r *http.Request) {
+func (a *App) ReturnAllCustomers(w http.ResponseWriter, r *http.Request) {
 
 	var payload Payload
 
-	db_client, err := db_connect()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
-	defer db_client.Close()
-
-	customers, err := db.GetAllCustomerEntries(db_client)
+	customers, err := db.GetAllCustomerEntries(a.DB)
 	if err != nil {
 		log.Print(err.Error())
 	}
@@ -92,7 +106,7 @@ func ReturnAllCustomers(w http.ResponseWriter, r *http.Request) {
 	writeJsonResponse(w, http.StatusOK, &payload)
 }
 
-func ReturnSingleCustomer(w http.ResponseWriter, r *http.Request) {
+func (a *App) ReturnSingleCustomer(w http.ResponseWriter, r *http.Request) {
 
 	var payload Payload
 
@@ -105,12 +119,7 @@ func ReturnSingleCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db_client, err := db_connect()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
-	customer, err := db.GetCustomerEntry(db_client, customer_uuid)
+	customer, err := db.GetCustomerEntry(a.DB, customer_uuid)
 	if err != nil {
 		log.Print(err.Error())
 	}
@@ -124,7 +133,7 @@ func ReturnSingleCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func CreateNewCustomer(w http.ResponseWriter, r *http.Request) {
+func (a *App) CreateNewCustomer(w http.ResponseWriter, r *http.Request) {
 	var payload Payload
 
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -153,12 +162,7 @@ func CreateNewCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db_client, err := db_connect()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
-	err = db.InsertCustomerEntry(db_client, customer)
+	err = db.InsertCustomerEntry(a.DB, customer)
 	if err != nil {
 		payload.Message = err.Error()
 		writeJsonResponse(w, http.StatusBadRequest, &payload)
@@ -167,7 +171,7 @@ func CreateNewCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
+func (a *App) DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	var payload Payload
 
 	vars := mux.Vars(r)
@@ -178,13 +182,7 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 		writeJsonResponse(w, http.StatusBadRequest, &payload)
 		return
 	}
-
-	db_client, err := db_connect()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
-	err = db.DeleteCustomerEntry(db_client, customer_uuid)
+	err := db.DeleteCustomerEntry(a.DB, customer_uuid)
 	if err != nil {
 		payload.Message = err.Error()
 		writeJsonResponse(w, http.StatusNotFound, &payload)
