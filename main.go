@@ -4,7 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"tabsquare/api"
+
+	apiv1 "tabsquare/api"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
@@ -13,11 +14,11 @@ import (
 
 func handleRequests() {
 	r := mux.NewRouter().StrictSlash(true)
-	r.HandleFunc("/customers", api.ReturnAllCustomers).Methods("GET")
-	r.HandleFunc("/customers", api.CreateNewCustomer).Methods("POST")
-	r.HandleFunc("/customers/{uuid}", api.DeleteCustomer).Methods("DELETE")
-	r.HandleFunc("/customers/{uuid}", api.ReturnSingleCustomer).Methods("GET")
-	r.HandleFunc("/health", api.HealthCheck).Methods("GET")
+	r.HandleFunc("/api/v1/customers", apiv1.ReturnAllCustomers).Methods("GET")
+	r.HandleFunc("/api/v1/customers", apiv1.CreateNewCustomer).Methods("POST")
+	r.HandleFunc("/api/v1/customers/{uuid}", apiv1.DeleteCustomer).Methods("DELETE")
+	r.HandleFunc("/api/v1/customers/{uuid}", apiv1.ReturnSingleCustomer).Methods("GET")
+	r.HandleFunc("/health", apiv1.HealthCheck).Methods("GET")
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	log.Fatal(http.ListenAndServe(":8080", loggedRouter))
 }
