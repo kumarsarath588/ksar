@@ -19,7 +19,10 @@ docker_image_build: setup_docker_centos
 docker_compose_up: setup_docker_centos
 	docker-compose up -d
 
-docker_compose_down: setup_docker_centos
+docker_compose_down:
 	docker-compose down --volumes
+
+docker_cleanup: docker_compose_down
+	docker system prune -a -f
 
 all: setup_deps build
