@@ -1,5 +1,9 @@
 version: '3'
 services:
+
+# Pull and run mysql from docker hub image
+# Mount data volume and run database schema required for our app
+# Set Mysql user details and database name
   mysql:
     image: mysql:5.7.37
     container_name: mysql-server
@@ -14,12 +18,18 @@ services:
       MYSQL_DATABASE: tabsquare
     networks:
       - app-network
+
+# App server image is built from Dockerfile at startup
+# Expose port 8080 to host port 80
+# Set dependency on mysql database
+# Set Database user & password
   app-server:
     build:
       context: .
       dockerfile: ./Dockerfile
+    restart: always
     ports:
-      - '8080:8080'
+      - '80:8080'
     depends_on:
       - mysql
     environment:

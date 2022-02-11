@@ -5,8 +5,10 @@ COPY . /app
 
 WORKDIR /app
 
+# Download go deps
 RUN go mod download
 
+# Resulting binary will not be linked to any C libraries
 ENV CGO_ENABLED=0
 
 RUN GOOS=linux go build -o tabsquare main.go
@@ -14,18 +16,24 @@ RUN GOOS=linux go build -o tabsquare main.go
 ## Container build stage
 FROM alpine:3.14.3
 
+# Install curl dependency required for healthcheck
+# Create user/group admin to run container as admin user
 RUN apk --no-cache add curl && \
 addgroup -S admin && \
 adduser -S admin -G admin
 
+# Default Environment variable;
+# If below env will be overriden when passed with -e during docker run
 ENV APP_DB_HOST=mysql \
     APP_DB_PORT=3306 \
     APP_DB_NAME=tabsquare
 
+# Run app as admin user
 USER admin
 
 WORKDIR /app
 
+# Copy binary from builder state
 COPY --from=builder /app/tabsquare .
 COPY scripts/entrypoint.sh .
 
