@@ -1,0 +1,117 @@
+replicaCount: 2
+
+image:
+  repository: kumarsarath588/tabsquare
+  pullPolicy: IfNotPresent
+  # Overrides to chart appVersion if empty.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  # Will be using auto-generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 101
+
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 100
+  runAsGroup: 101
+
+service:
+  type: ClusterIP
+  port: 80
+  nodePorts:
+    http: ""
+  externalTrafficPolicy: Cluster
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 90
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+updateStrategy:
+ type: RollingUpdate
+ rollingUpdate:
+   maxSurge: 25%
+   maxUnavailable: 25%
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+##
+## MysqlDB chart configuration
+##
+mysql:
+  ## Whether to deploy a mysql server to satisfy the applications database requirements. To use an external database set this to false and configure the externalDatabase parameters
+  enabled: true
+  ## Create a database
+  ##
+  mysqlDatabase: tabsquare
+
+  # mysqlRootPassword: testing
+  ## Create a database user
+  ##
+  mysqlUser: dbadmin
+  # mysqlPassword:
+
+  ## Persist data to a persistent volume
+  persistence:
+    enabled: false
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    annotations: {}

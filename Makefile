@@ -25,4 +25,18 @@ docker_compose_down:
 docker_cleanup: docker_compose_down
 	docker system prune -a -f
 
+helm_download_deps:
+	helm dep update ./helm-chart/tabsquare-app
+
+helm_install: helm_download_deps
+	helm upgrade --install tabsquare-app ./helm-chart/tabsquare-app
+
+helm_test:
+	helm test tabsquare-app
+
+helm_install_test: helm_install helm_test
+
+helm_delete:
+	helm delete tabsquare-app
+
 all: setup_deps build

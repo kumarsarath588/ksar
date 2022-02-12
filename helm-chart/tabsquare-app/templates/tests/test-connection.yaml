@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "tabsquare-app.fullname" . }}-test-connection"
+  labels:
+    {{- include "tabsquare-app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox:latest
+      command: ['wget']
+      args: ['{{ include "tabsquare-app.fullname" . }}:{{ .Values.service.port }}/api/v1/customers']
+  restartPolicy: Never
