@@ -9,12 +9,20 @@ import (
 	"net/http"
 	"os"
 	"tabsquare/db"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
+
+const tableCreationQuery = `CREATE TABLE IF NOT EXISTS tabsquare.customers (
+    uuid VARCHAR(255) NOT NULL,
+    customer_name VARCHAR(2048) NOT NULL,
+    country VARCHAR(4096) NOT NULL,
+    PRIMARY KEY (uuid)
+);`
 
 type Payload struct {
 	Entities []*db.Customer `json:"entities,omitempty"`
@@ -36,6 +44,8 @@ type App struct {
 }
 
 func (a *App) Initialize(user, password, host, port, dbname string) {
+	time.Sleep(20 * time.Second)
+	log.Printf("Initalizing database with user '%s', host '%s', port '%s', dbname '%s'", user, host, port, dbname)
 	connectionString :=
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbname)
 
@@ -45,9 +55,18 @@ func (a *App) Initialize(user, password, host, port, dbname string) {
 		log.Fatal(err)
 	}
 
+	a.createTable()
+
 	a.Router = mux.NewRouter()
 
 	a.initializeRoutes()
+}
+
+func (a *App) createTable() {
+	log.Printf("Executing db migrate")
+	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (a *App) Run(addr string) {
@@ -56,7 +75,7 @@ func (a *App) Run(addr string) {
 }
 
 func (a *App) initializeRoutes() {
-
+	log.Printf("Initializing routes")
 	a.Router.HandleFunc("/api/v1/customers", a.ReturnAllCustomers).Methods("GET")
 	a.Router.HandleFunc("/api/v1/customers", a.CreateNewCustomer).Methods("POST")
 	a.Router.HandleFunc("/api/v1/customers/{uuid}", a.DeleteCustomer).Methods("DELETE")
