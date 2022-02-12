@@ -19,6 +19,7 @@ FROM alpine:3.14.3
 # Install curl dependency required for healthcheck
 # Create user/group admin to run container as admin user
 RUN apk --no-cache add curl && \
+apk del musl busybox  alpine-keys  apk-tools && \
 addgroup -S admin && \
 adduser -S admin -G admin
 
