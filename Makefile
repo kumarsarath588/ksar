@@ -2,10 +2,10 @@ setup_deps:
 	go mod tidy
 	go mod vendor
 
-build:
+build: setup_deps
 	go build -o ./tabsquare main.go
 
-run:
+run: setup_deps
 	go run main.go
 
 setup_docker_centos:
@@ -39,4 +39,4 @@ helm_install_test: helm_install helm_test
 helm_delete:
 	helm delete tabsquare-app
 
-all: setup_deps build
+all: setup_deps build docker_compose_up
