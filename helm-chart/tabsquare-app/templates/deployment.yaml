@@ -30,6 +30,39 @@ spec:
       serviceAccountName: {{ include "tabsquare-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: {{ include "tabsquare-app.InitContainerName" . | quote }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ .Values.initContainers.image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/bin/ash"
+            - "-c"
+            - "until mysql --host=${DB_HOST} --user=${MYSQL_USER}
+            --password=${MYSQL_PASSWORD} --execute=\"SELECT 1;\"; do echo waiting for mysql; sleep 2; done;"
+          env:
+            - name: DB_HOST
+              value: {{ include "tabsquare.databaseHost" . | quote }}
+            - name: MYSQL_USER
+              value: {{ include "tabsquare.databaseUser" . | quote }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tabsquare.databaseSecretName" . }}
+                  key: mysql-password
+          {{- if .Values.nodeSelector }}
+          nodeSelector:
+    {{ toYaml .Values.nodeSelector | indent 8 }}
+          {{- end }}
+          {{- if .Values.affinity }}
+          affinity:
+    {{ toYaml .Values.affinity | indent 8 }}
+          {{- end }}
+          {{- if .Values.tolerations }}
+          tolerations:
+    {{ toYaml .Values.tolerations | indent 8 }}
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

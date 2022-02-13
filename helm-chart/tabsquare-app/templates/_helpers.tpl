@@ -113,3 +113,12 @@ Return the Mysql User Password
     {{- printf "%s" (include "mysql.fullname" .) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return the Init container name
+*/}}
+{{- define "tabsquare-app.InitContainerName" -}}
+{{- if .Values.initContainers.enabled }}
+    {{- printf "%s-%s" .Release.Name "init" -}}
+{{- end -}}
+{{- end }}

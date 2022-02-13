@@ -6,6 +6,10 @@ image:
   # Overrides to chart appVersion if empty.
   tag: ""
 
+initContainers:
+  enabled: true
+  image: kumarsarath588/tabsquare-init:1.0.0
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
