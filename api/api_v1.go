@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"tabsquare/db"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -44,7 +43,6 @@ type App struct {
 }
 
 func (a *App) Initialize(user, password, host, port, dbname string) {
-	time.Sleep(20 * time.Second)
 	log.Printf("Initalizing database with user '%s', host '%s', port '%s', dbname '%s'", user, host, port, dbname)
 	connectionString :=
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbname)
