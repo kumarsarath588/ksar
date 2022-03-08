@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "tabsquare-app.fullname" . }}
+  name: {{ include "ksar-app.fullname" . }}
   labels:
-    {{- include "tabsquare-app.labels" . | nindent 4 }}
+    {{- include "ksar-app.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   {{- if (or (eq .Values.service.type "LoadBalancer") (eq .Values.service.type "NodePort")) }}
@@ -19,4 +19,4 @@ spec:
       nodePort: null
       {{- end }}
   selector:
-    {{- include "tabsquare-app.selectorLabels" . | nindent 4 }}
+    {{- include "ksar-app.selectorLabels" . | nindent 4 }}

@@ -12,10 +12,10 @@ services:
       - 'mysql_data:/var/lib/mysql'
       - './schema:/docker-entrypoint-initdb.d'
     environment:
-      MYSQL_USER: dbadmin
+      MYSQL_USER: dbadm
       MYSQL_PASSWORD: BcGH2Gj41J5VF1
       MYSQL_ROOT_PASSWORD: BcGH2Gj41J5VF1
-      MYSQL_DATABASE: tabsquare
+      MYSQL_DATABASE: ksar
     networks:
       - app-network
 

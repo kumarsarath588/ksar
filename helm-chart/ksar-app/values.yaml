@@ -1,14 +1,14 @@
 replicaCount: 2
 
 image:
-  repository: kumarsarath588/tabsquare
+  repository: kumarsarath588/ksar
   pullPolicy: IfNotPresent
   # Overrides to chart appVersion if empty.
   tag: ""
 
 initContainers:
   enabled: true
-  image: kumarsarath588/tabsquare-init:1.0.0
+  image: kumarsarath588/ksar-init:1.0.0
 
 imagePullSecrets: []
 nameOverride: ""
@@ -44,7 +44,7 @@ ingress:
   annotations: {}
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: tabsquare-app.local
+    - host: ksar-app.local
       paths:
         - path: /
           pathType: ImplementationSpecific
@@ -99,7 +99,7 @@ mysql:
   enabled: true
   ## Create a database
   ##
-  mysqlDatabase: tabsquare
+  mysqlDatabase: ksar
 
   # mysqlRootPassword: testing
   ## Create a database user

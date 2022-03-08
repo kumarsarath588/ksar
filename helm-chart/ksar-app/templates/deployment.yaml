@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "tabsquare-app.fullname" . }}
+  name: {{ include "ksar-app.fullname" . }}
   labels:
-    {{- include "tabsquare-app.labels" . | nindent 4 }}
+    {{- include "ksar-app.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -13,7 +13,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "tabsquare-app.selectorLabels" . | nindent 6 }}
+      {{- include "ksar-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -21,17 +21,17 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "tabsquare-app.selectorLabels" . | nindent 8 }}
+        {{- include "ksar-app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "tabsquare-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "ksar-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        - name: {{ include "tabsquare-app.InitContainerName" . | quote }}
+        - name: {{ include "ksar-app.InitContainerName" . | quote }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: {{ .Values.initContainers.image }}
@@ -43,13 +43,13 @@ spec:
             --password=${MYSQL_PASSWORD} --execute=\"SELECT 1;\"; do echo waiting for mysql; sleep 2; done;"
           env:
             - name: DB_HOST
-              value: {{ include "tabsquare.databaseHost" . | quote }}
+              value: {{ include "ksar.databaseHost" . | quote }}
             - name: MYSQL_USER
-              value: {{ include "tabsquare.databaseUser" . | quote }}
+              value: {{ include "ksar.databaseUser" . | quote }}
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "tabsquare.databaseSecretName" . }}
+                  name: {{ include "ksar.databaseSecretName" . }}
                   key: mysql-password
           {{- if .Values.nodeSelector }}
           nodeSelector:
@@ -71,17 +71,17 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: APP_DB_HOST
-              value: {{ include "tabsquare.databaseHost" . | quote }}
+              value: {{ include "ksar.databaseHost" . | quote }}
             - name: APP_DB_PORT
-              value: {{ include "tabsquare.databasePort" . | quote }}
+              value: {{ include "ksar.databasePort" . | quote }}
             - name: APP_DB_NAME
-              value: {{ include "tabsquare.databaseName" . | quote }}
+              value: {{ include "ksar.databaseName" . | quote }}
             - name: APP_DB_USERNAME
-              value: {{ include "tabsquare.databaseUser" . | quote }}
+              value: {{ include "ksar.databaseUser" . | quote }}
             - name: APP_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "tabsquare.databaseSecretName" . }}
+                  name: {{ include "ksar.databaseSecretName" . }}
                   key: mysql-password
           ports:
             - name: http

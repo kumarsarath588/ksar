@@ -1,8 +1,8 @@
 package main
 
 import (
+	apiv1 "ksar/api"
 	"os"
-	apiv1 "tabsquare/api"
 )
 
 func main() {

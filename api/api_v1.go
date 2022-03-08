@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"ksar/db"
 	"log"
 	"net/http"
 	"os"
-	"tabsquare/db"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const tableCreationQuery = `CREATE TABLE IF NOT EXISTS tabsquare.customers (
+const tableCreationQuery = `CREATE TABLE IF NOT EXISTS ksar.customers (
     uuid VARCHAR(255) NOT NULL,
     customer_name VARCHAR(2048) NOT NULL,
     country VARCHAR(4096) NOT NULL,
@@ -184,7 +184,7 @@ func (a *App) CreateNewCustomer(w http.ResponseWriter, r *http.Request) {
 		payload.Message = err.Error()
 		writeJsonResponse(w, http.StatusBadRequest, &payload)
 	} else {
-		writeJsonResponse(w, http.StatusOK, &customer)
+		writeJsonResponse(w, http.StatusCreated, &customer)
 	}
 }
 

@@ -1,6 +1,6 @@
 apiVersion: v2
-name: tabsquare-app
-description: A Helm chart for Tabsquare App
+name: ksar-app
+description: A Helm chart for Ksar App
 
 type: application
 

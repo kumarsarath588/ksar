@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "tabsquare-app.name" -}}
+{{- define "ksar-app.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "tabsquare-app.fullname" -}}
+{{- define "ksar-app.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "tabsquare-app.chart" -}}
+{{- define "ksar-app.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "tabsquare-app.labels" -}}
-helm.sh/chart: {{ include "tabsquare-app.chart" . }}
-{{ include "tabsquare-app.selectorLabels" . }}
+{{- define "ksar-app.labels" -}}
+helm.sh/chart: {{ include "ksar-app.chart" . }}
+{{ include "ksar-app.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "tabsquare-app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "tabsquare-app.name" . }}
+{{- define "ksar-app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "ksar-app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "tabsquare-app.serviceAccountName" -}}
+{{- define "ksar-app.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "tabsquare-app.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "ksar-app.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -72,7 +72,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Return the Mysql Host
 */}}
-{{- define "tabsquare.databaseHost" -}}
+{{- define "ksar.databaseHost" -}}
 {{- if .Values.mysql.enabled }}
     {{- printf "%s" (include "mysql.fullname" .) -}}
 {{- end -}}
@@ -81,7 +81,7 @@ Return the Mysql Host
 {{/*
 Return the Mysql Port
 */}}
-{{- define "tabsquare.databasePort" -}}
+{{- define "ksar.databasePort" -}}
 {{- if .Values.mysql.enabled }}
     {{- printf "3306" -}}
 {{- end -}}
@@ -90,7 +90,7 @@ Return the Mysql Port
 {{/*
 Return the Mysql Database Name
 */}}
-{{- define "tabsquare.databaseName" -}}
+{{- define "ksar.databaseName" -}}
 {{- if .Values.mysql.enabled }}
     {{- printf "%s" .Values.mysql.mysqlDatabase -}}
 {{- end -}}
@@ -99,7 +99,7 @@ Return the Mysql Database Name
 {{/*
 Return the Mysql User
 */}}
-{{- define "tabsquare.databaseUser" -}}
+{{- define "ksar.databaseUser" -}}
 {{- if .Values.mysql.enabled }}
     {{- printf "%s" .Values.mysql.mysqlUser -}}
 {{- end -}}
@@ -108,7 +108,7 @@ Return the Mysql User
 {{/*
 Return the Mysql User Password
 */}}
-{{- define "tabsquare.databaseSecretName" -}}
+{{- define "ksar.databaseSecretName" -}}
 {{- if .Values.mysql.enabled }}
     {{- printf "%s" (include "mysql.fullname" .) -}}
 {{- end -}}
@@ -117,7 +117,7 @@ Return the Mysql User Password
 {{/*
 Return the Init container name
 */}}
-{{- define "tabsquare-app.InitContainerName" -}}
+{{- define "ksar-app.InitContainerName" -}}
 {{- if .Values.initContainers.enabled }}
     {{- printf "%s-%s" .Release.Name "init" -}}
 {{- end -}}
