@@ -3,14 +3,49 @@
 @Library('jenkins_shared_library@main')_
 
 pipeline {
-    agent {
-      label "golang-exec"
+  agent {
+    kubernetes {
+      yaml '''
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          labels:
+            jenkins-label: golang-docker
+        spec:
+          containers:
+          - name: golang
+            image: golang:1.17.8
+            command:
+            - sleep
+            args:
+            - 99d
+            tty: true
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:debug
+            command:
+            - sleep
+            args:
+            - 9999999
+            tty: true
+            volumeMounts:
+            - name: kaniko-secret
+              mountPath: /kaniko/.docker
+          restartPolicy: Never
+          volumes:
+          - name: kaniko-secret
+            secret:
+                secretName: dockercred
+                items:
+                - key: .dockerconfigjson
+                  path: config.json
+        '''
     }
+  }
     environment {
         GO114MODULE = 'on'
         CGO_ENABLED = 0
     }
-    stages {
+  stages {
         stage('Checkout Source') {
             steps {
                 git url:'https://github.com/kumarsarath588/ksar.git', branch:'main'
@@ -50,6 +85,14 @@ pipeline {
                 container('golang') {
                     echo 'Build Application'
                     sh 'go build -o ksar main.go'
+                }
+            }
+        }
+        stage('Build ksar Docker image') {
+            steps {
+                container('kaniko') {
+                    echo 'Build Docker Image'
+                    sh '/kaniko/executor --context `pwd` --destination kumarsarath588/ksar:1.0.0'
                 }
             }
         }
