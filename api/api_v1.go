@@ -69,7 +69,8 @@ func (a *App) createTable() {
 
 func (a *App) Run(addr string) {
 	loggedRouter := handlers.LoggingHandler(os.Stdout, a.Router)
-	log.Fatal(http.ListenAndServe(addr, loggedRouter))
+	compressedRouter := handlers.CompressHandler(loggedRouter)
+	log.Fatal(http.ListenAndServe(addr, compressedRouter))
 }
 
 func (a *App) initializeRoutes() {
@@ -79,11 +80,17 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/api/v1/customers/{uuid}", a.DeleteCustomer).Methods("DELETE")
 	a.Router.HandleFunc("/api/v1/customers/{uuid}", a.ReturnSingleCustomer).Methods("GET")
 	a.Router.HandleFunc("/health", a.HealthCheck).Methods("GET")
+	a.Router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "404 - Not Found!", http.StatusNotFound)
 }
 
 func writeJsonResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Encoding", "gzip")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(&data)
 }
