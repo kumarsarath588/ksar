@@ -1,0 +1,10 @@
+{
+    "version": "1.0.1",
+    "tests": {
+        "test_db_host": "10.46.142.201",
+        "test_db_port": 3306,
+        "test_db_name": "ksar",
+        "test_db_user": "user",
+        "test_db_password": "BcGH2Gj41J5VF1"
+    }
+}
