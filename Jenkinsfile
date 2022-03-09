@@ -60,6 +60,8 @@ pipeline {
                     env.APP_DB_USERNAME = json_props["tests"]["test_db_user"]
                     env.APP_DB_PASSWORD = json_props["tests"]["test_db_password"]
                     env.APP_DB_NAME = json_props["tests"]["test_db_name"]
+                    env.VERSION = json_props["version"]
+                    env.DOCKER_TAG = json_props["version"]
                 }
             }
         }
@@ -93,7 +95,7 @@ pipeline {
             steps {
                 container('kaniko') {
                     echo 'Build Docker Image'
-                    sh '/kaniko/executor --context `pwd` --destination kumarsarath588/ksar:1.0.0'
+                    sh "/kaniko/executor --context `pwd` --destination kumarsarath588/ksar:${DOCKER_TAG}"
                 }
             }
         }
