@@ -45,10 +45,13 @@ pipeline {
         GO114MODULE = 'on'
         CGO_ENABLED = 0
     }
-  stages {
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: '(Optional) Branch Name')
+    }
+    stages {
         stage('Checkout Source') {
             steps {
-                git url:'https://github.com/kumarsarath588/ksar.git', branch:'main'
+                git branch: '${BRANCH_NAME}', url: 'https://github.com/kumarsarath588/ksar.git'
             }
         }
         stage('Set params') {
