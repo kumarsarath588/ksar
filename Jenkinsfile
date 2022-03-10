@@ -45,20 +45,26 @@ pipeline {
         GO114MODULE = 'on'
         CGO_ENABLED = 0
     }
-  stages {
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: '(Optional) Branch Name')
+    }
+    stages {
         stage('Checkout Source') {
             steps {
-                git url:'https://github.com/kumarsarath588/ksar.git', branch:'main'
+                git branch: '${BRANCH_NAME}', url: 'https://github.com/kumarsarath588/ksar.git'
             }
         }
-        stage('Set Test params') {
+        stage('Set params') {
             steps {
                 script {
-                    env.APP_DB_HOST = "10.46.142.201"
-                    env.APP_DB_PORT = 3306
-                    env.APP_DB_USERNAME = "user"
-                    env.APP_DB_PASSWORD = "BcGH2Gj41J5VF1"
-                    env.APP_DB_NAME = "ksar"
+                    def json_props = readJSON file: 'config.json'
+                    env.APP_DB_HOST = json_props["tests"]["test_db_host"]
+                    env.APP_DB_PORT = json_props["tests"]["test_db_port"]
+                    env.APP_DB_USERNAME = json_props["tests"]["test_db_user"]
+                    env.APP_DB_PASSWORD = json_props["tests"]["test_db_password"]
+                    env.APP_DB_NAME = json_props["tests"]["test_db_name"]
+                    env.VERSION = json_props["version"]
+                    env.DOCKER_TAG = json_props["version"]
                 }
             }
         }
@@ -92,7 +98,7 @@ pipeline {
             steps {
                 container('kaniko') {
                     echo 'Build Docker Image'
-                    sh '/kaniko/executor --context `pwd` --destination kumarsarath588/ksar:1.0.0'
+                    sh "/kaniko/executor --context `pwd` --destination kumarsarath588/ksar:${DOCKER_TAG}"
                 }
             }
         }
