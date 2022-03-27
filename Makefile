@@ -6,7 +6,7 @@ tests: setup_deps
 	go test -v
 
 build: tests setup_deps
-	go build -o ./ksar main.go
+	CGO_ENABLED=0 go build -o ./ksar main.go
 
 run: setup_deps
 	go run main.go
